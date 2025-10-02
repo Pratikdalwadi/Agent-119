@@ -1,9 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
 
-const ai = new GoogleGenAI({ 
-  apiKey: import.meta.env.VITE_GEMINI_API_KEY || ''
-});
-
 export interface GeminiTextExtractionResult {
   text: string;
   structuredData: {
@@ -16,7 +12,16 @@ export interface GeminiTextExtractionResult {
   confidence: number;
 }
 
-export async function extractTextWithGemini(imageDataUrl: string): Promise<GeminiTextExtractionResult> {
+export async function extractTextWithGemini(imageDataUrl: string, apiKey?: string): Promise<GeminiTextExtractionResult> {
+  const effectiveApiKey = apiKey || import.meta.env.VITE_GEMINI_API_KEY || '';
+  
+  if (!effectiveApiKey) {
+    throw new Error('Gemini API key is required. Please provide an API key to use AI-powered extraction.');
+  }
+  
+  const ai = new GoogleGenAI({ 
+    apiKey: effectiveApiKey
+  });
   try {
     // Convert data URL to base64
     const base64Data = imageDataUrl.split(',')[1];
@@ -108,7 +113,7 @@ CRITICAL: Do not miss any text. Even small elements like page numbers, footnotes
   }
 }
 
-export async function analyzeDocumentStructure(imageDataUrl: string, fallbackText?: string): Promise<{
+export async function analyzeDocumentStructure(imageDataUrl: string, fallbackText?: string, apiKey?: string): Promise<{
   layout: string;
   elements: Array<{
     type: string;
@@ -118,6 +123,16 @@ export async function analyzeDocumentStructure(imageDataUrl: string, fallbackTex
   completeText: string;
 }> {
   try {
+    const effectiveApiKey = apiKey || import.meta.env.VITE_GEMINI_API_KEY || '';
+    
+    if (!effectiveApiKey) {
+      throw new Error('Gemini API key is required. Please provide an API key to use AI-powered extraction.');
+    }
+    
+    const ai = new GoogleGenAI({ 
+      apiKey: effectiveApiKey
+    });
+    
     const base64Data = imageDataUrl.split(',')[1];
     
     const prompt = `

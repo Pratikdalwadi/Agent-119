@@ -29,6 +29,8 @@ interface EnhancedPDFProcessorProps {
   onProgressUpdate: (progress: number) => void;
   onError?: (error: string) => void;
   enableAdvancedProcessing?: boolean;
+  geminiApiKey?: string;
+  openaiApiKey?: string;
 }
 
 const EnhancedPDFProcessor = ({ 
@@ -36,7 +38,9 @@ const EnhancedPDFProcessor = ({
   onProcessingComplete, 
   onProgressUpdate, 
   onError,
-  enableAdvancedProcessing = true 
+  enableAdvancedProcessing = true,
+  geminiApiKey,
+  openaiApiKey
 }: EnhancedPDFProcessorProps) => {
   const [numPages, setNumPages] = useState<number>(0);
   const [currentProcessingPage, setCurrentProcessingPage] = useState<number>(0);
@@ -67,10 +71,10 @@ const EnhancedPDFProcessor = ({
       console.log(`🔍 Enhanced extraction for page ${pageNumber} - using PDF.js text layer + improved OCR`);
       
       // Extract text using Gemini for semantic understanding
-      const geminiResult = await extractTextWithGemini(imageData);
+      const geminiResult = await extractTextWithGemini(imageData, geminiApiKey);
       
       // Analyze document structure with complete text fallback
-      const structureResult = await analyzeDocumentStructure(imageData, geminiResult.text);
+      const structureResult = await analyzeDocumentStructure(imageData, geminiResult.text, geminiApiKey);
       
       console.log(`🤖 Gemini extracted ${geminiResult.text.length} characters with ${(geminiResult.confidence * 100).toFixed(1)}% confidence`);
       

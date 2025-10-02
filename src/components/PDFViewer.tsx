@@ -5,8 +5,9 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, FileText, CircleAlert as AlertCircle, CircleCheck as CheckCircle, Sparkles, Target, Brain, Eye } from 'lucide-react';
+import { Upload, FileText, CircleAlert as AlertCircle, CircleCheck as CheckCircle, Sparkles, Target, Brain, Eye, Key } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PDFProcessor, { PageData } from './PDFProcessor';
 import EnhancedPDFProcessor from './EnhancedPDFProcessor';
@@ -30,6 +31,8 @@ const PDFViewer = () => {
   const [highlightedGrounding, setHighlightedGrounding] = useState<Grounding | null>(null);
   const [activeView, setActiveView] = useState<'document' | 'analytics' | 'chunks'>('document');
   const [documentDimensions, setDocumentDimensions] = useState({ width: 0, height: 0 });
+  const [geminiApiKey, setGeminiApiKey] = useState<string>('');
+  const [openaiApiKey, setOpenaiApiKey] = useState<string>('');
   const { toast } = useToast();
 
   const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -241,6 +244,48 @@ const PDFViewer = () => {
               </p>
             </div>
           )}
+          
+          {/* API Key Configuration */}
+          <div className="mt-6 max-w-3xl mx-auto">
+            <Card className="p-4 bg-viewer-surface border-viewer-border">
+              <div className="flex items-center gap-2 mb-3">
+                <Key className="w-4 h-4 text-muted-foreground" />
+                <h3 className="text-sm font-semibold">API Configuration</h3>
+                <span className="text-xs text-muted-foreground">(Optional)</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="gemini-key" className="text-sm">Gemini API Key</Label>
+                  <Input
+                    id="gemini-key"
+                    type="password"
+                    placeholder="Enter your Gemini API key"
+                    value={geminiApiKey}
+                    onChange={(e) => setGeminiApiKey(e.target.value)}
+                    disabled={isProcessing}
+                    className="text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground">For AI-powered extraction with grounding</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="openai-key" className="text-sm">OpenAI API Key</Label>
+                  <Input
+                    id="openai-key"
+                    type="password"
+                    placeholder="Enter your OpenAI API key"
+                    value={openaiApiKey}
+                    onChange={(e) => setOpenaiApiKey(e.target.value)}
+                    disabled={isProcessing}
+                    className="text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground">Alternative AI provider for extraction</p>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-3">
+                💡 Get your API keys: <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-pdf-primary hover:underline">Gemini</a> • <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-pdf-primary hover:underline">OpenAI</a>
+              </p>
+            </Card>
+          </div>
         </div>
 
         {/* File Upload */}
@@ -482,6 +527,8 @@ const PDFViewer = () => {
                 onProgressUpdate={handleProgressUpdate}
                 onError={handleError}
                 enableAdvancedProcessing={true}
+                geminiApiKey={geminiApiKey}
+                openaiApiKey={openaiApiKey}
               />
             ) : (
               <PDFProcessor
